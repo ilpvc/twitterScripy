@@ -1,10 +1,11 @@
 import { MongoClient } from 'mongodb';
+import config from "../config/config.js";
 
-const uri = 'mongodb://root:123456@127.0.0.1:27017';
+const uri = config.mongoUrl;
 
 export async function insertTweets(tweets) {
     if (!tweets || tweets.length === 0) return;
-    
+    console.log('url', uri)
     const client = new MongoClient(uri);
     
     try {
@@ -20,8 +21,8 @@ export async function insertTweets(tweets) {
             }
         }));
         
-        await collection.bulkWrite(operations);
-        console.log('数据已成功更新/插入 MongoDB');
+        const insertResult = await collection.bulkWrite(operations);
+        console.log('数据已成功更新/插入 MongoDB', insertResult);
     } catch (mongoError) {
         console.error('插入数据到 MongoDB 时出错:', mongoError);
         throw mongoError;

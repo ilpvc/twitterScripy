@@ -4,6 +4,7 @@ import userRouter from './routes/userRoutes.js';
 const app = express();
 const port = 3000;
 
+app.use('/static', express.static('images'));
 app.use('/', userRouter);
 
 app.listen(port, () => {

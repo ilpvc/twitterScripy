@@ -5,7 +5,7 @@ import { getRecentTweet } from '../services/dbService.js';
 
 const router = Router();
 
-const recentTweets = new Map();
+// const recentTweets = new Map();
 
 router.get('/user/recent', async (req, res) => {
     const screenName = req.query.id;
@@ -13,14 +13,11 @@ router.get('/user/recent', async (req, res) => {
         return res.status(400).send('id parameter is required');
     }
     const tweet = await getRecentTweet(screenName)
-    if(recentTweets.get(tweet.user.screenName)!==tweet.id){
-        recentTweets.set(tweet.user.screenName, tweet.id);
-        console.log('新的推文发送n8n:', tweet);
-        // todo 发送消息到你n8m
-    }
-
-    
-
+    // if(recentTweets.get(tweet.user.screenName)!==tweet.id){
+    //     recentTweets.set(tweet.user.screenName, tweet.id);
+    //     console.log('新的推文发送n8n:', tweet);
+    //     // todo 发送消息到你n8m
+    // }
     res.send(tweet);
 });
 
@@ -76,5 +73,18 @@ router.get('/job/recent/stop', async (req, res) => {
     }
     res.send(`Job stopped for user ${userId}`);
 })
+
+router.get('/images', async (req, res) => {
+    const fs = await import('fs/promises');
+    const path = await import('path');
+    const imagesDir = path.join(process.cwd(), 'images');
+    try {
+        const files = await fs.readdir(imagesDir);
+        const imageUrls = files.map(file => `http://localhost:3000/static/${file}`);
+        res.send(imageUrls);
+    } catch (err) {
+        res.status(500).send('无法读取图片目录');
+    }
+});
 
 export default router;
