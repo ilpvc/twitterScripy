@@ -1,0 +1,80 @@
+import { Router } from 'express';
+import { getTw } from '../services/twitterService.js';
+import { scheduleJob, cancelJob, startRecentTweet,stopRecentTweet } from '../services/jobService.js';
+import { getRecentTweet } from '../services/dbService.js';
+
+const router = Router();
+
+const recentTweets = new Map();
+
+router.get('/user/recent', async (req, res) => {
+    const screenName = req.query.id;
+    if (!screenName) {
+        return res.status(400).send('id parameter is required');
+    }
+    const tweet = await getRecentTweet(screenName)
+    if(recentTweets.get(tweet.user.screenName)!==tweet.id){
+        recentTweets.set(tweet.user.screenName, tweet.id);
+        console.log('新的推文发送n8n:', tweet);
+        // todo 发送消息到你n8m
+    }
+
+    
+
+    res.send(tweet);
+});
+
+router.get('/job/start', async (req, res) => {
+    const userId = req.query.userId;
+    if (!userId) {
+        return res.status(400).send('userId is required');
+    }
+
+    const result = await scheduleJob(userId);
+    if (result.error) {
+        return res.status(400).send(result.error);
+    }
+
+    res.send(`Job started for user ${userId}`);
+});
+
+router.get('/job/stop', async (req, res) => {
+    const userId = req.query.userId;
+    if (!userId) {
+        return res.status(400).send('userId is required');
+    }
+
+    const result = await cancelJob(userId);
+    if (result.error) {
+        return res.status(400).send(result.error);
+    }
+
+    res.send(`Job stopped for user ${userId}`);
+});
+
+
+router.get('/job/recent/start', async (req, res) => {
+    const userId = req.query.userId;
+    if (!userId) {
+        return res.status(400).send('userId is required');
+    }
+    const result = await startRecentTweet(userId);
+    if (result.error) {
+        return res.status(400).send(result.error);
+    }
+    res.send(`Job started for user ${userId}`);
+})
+
+router.get('/job/recent/stop', async (req, res) => {
+    const userId = req.query.userId;
+    if (!userId) {
+        return res.status(400).send('userId is required');
+    }
+    const result = await stopRecentTweet(userId);
+    if (result.error) {
+        return res.status(400).send(result.error);
+    }
+    res.send(`Job stopped for user ${userId}`);
+})
+
+export default router;

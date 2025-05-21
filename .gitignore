@@ -1,0 +1,94 @@
+# Node modules
+node_modules/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Compiled output
+dist/
+build/
+.out/
+.next/
+.svelte-kit/
+.angular/
+
+# Vite cache
+.vite/
+
+# Nuxt build output
+.nuxt/
+.output/
+
+# Parcel cache
+.cache/
+
+# TypeScript
+*.tsbuildinfo
+
+# Env files
+.env
+.env.*.local
+!.env.example
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+
+# Optional npm cache directory
+.npm/
+
+# Optional eslint cache
+.eslintcache
+
+# Stylelint cache
+.stylelintcache
+
+# Coverage directory used by testing tools
+coverage/
+
+# Test results
+jest-html-reporters-*.html
+test-results/
+
+# Local preview / dev servers
+*.local
+*.log
+*.swp
+*.tmp
+*.temp
+
+# Playwright / Puppeteer
+.playwright/
+.puppeteer/
+
+# Storybook
+.out/
+storybook-static/
+
+# Chrome Extension dev
+.crx/
+
+# Others (optional, for safety)
+*.orig
+*.bak
+
+# OS metadata
+Icon?
