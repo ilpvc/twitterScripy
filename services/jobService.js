@@ -15,7 +15,7 @@ export async function scheduleJob(userId) {
     }
     
     await getTw(userId);
-    jobs[userId] = schedule.scheduleJob('*/10 * * * *', async () => {
+    jobs[userId] = schedule.scheduleJob('*/5 * * * *', async () => {
         await getTw(userId);
     });
     
@@ -51,7 +51,7 @@ export async function startRecentTweet(userId) {
             body: JSON.stringify(tweet)
         })
     }
-    recentjobs[userId] = schedule.scheduleJob('*/10 * * * * *', async () => {
+    recentjobs[userId] = schedule.scheduleJob('*/5 * * * * *', async () => {
         const tweet = await getRecentTweet(userId);
 
         if(recentTweets.get(tweet.user.screenName)!==tweet.id){

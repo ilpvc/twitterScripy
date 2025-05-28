@@ -16,8 +16,8 @@ export function extractTweetInfo(tweets) {
         source: legacy?.source,
         user: {
           id: user?.rest_id,
-          name: user?.legacy?.name,
-          screenName: user?.legacy?.screen_name,
+          name: user?.core?.name,
+          screenName: user?.core?.screen_name,
           verified: user?.is_blue_verified,
           followersCount: user?.legacy?.followers_count,
           followingCount: user?.legacy?.friends_count
