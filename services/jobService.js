@@ -14,8 +14,8 @@ export async function scheduleJob(userId) {
         return { error: 'Job already running for this user' };
     }
     
-    await getTw(userId);
-    jobs[userId] = schedule.scheduleJob('*/5 * * * *', async () => {
+    // await getTw(userId);
+    jobs[userId] = schedule.scheduleJob('*/1 * * * *', async () => {
         await getTw(userId);
     });
     

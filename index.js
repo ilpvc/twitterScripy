@@ -14,20 +14,28 @@ app.listen(port, async () => {
     await scheduleJob('TrumpDailyPosts')
 });
 
-process.on('uncaughtException', (err) => {
+process.on('uncaughtException', async (err) => {
     console.error('未捕获的异常:', err);
     // 执行你想要的逻辑，例如日志记录、发送通知等
-    cleanupAndExit();
+    await cleanupAndExit(err);
 });
 
-process.on('unhandledRejection', (reason, promise) => {
+process.on('unhandledRejection', async (reason, promise) => {
     console.error('未处理的 Promise 拒绝:', reason);
     // 同样处理
-    cleanupAndExit();
+    await cleanupAndExit(reason);
 });
 
-async function cleanupAndExit() {
-    console.log('执行清理逻辑...');
+async function cleanupAndExit(error) {
+    const errorBody = {
+        time: new Date().toLocaleString(),
+        error: error
+    }
+    console.log('执行清理逻辑...', errorBody);
+    await fetch('https://n8n-lyb.zeabur.app/webhook-test/b04e5c37-1b16-4527-a061-84dc46b05d62',{
+        method: 'POST',
+        body: JSON.stringify(errorBody)
+    })
     await closeBrowser()
     setTimeout(() => {
         process.exit(1); // 确保退出
