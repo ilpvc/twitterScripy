@@ -11,6 +11,7 @@
   "description": "",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.11.4",
+    "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "mongodb": "^6.16.0",
     "node-schedule": "^2.1.1",

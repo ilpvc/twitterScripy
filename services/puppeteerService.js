@@ -2,6 +2,7 @@ import puppeteer from "puppeteer";
 
 let browser = null;
 let twitterHomePage = new Map();
+let recentTweetsPage = new Map();
 let pageListener = []
 
 export async function getBrowser() {
@@ -35,6 +36,17 @@ export async function getTwitterHomePage(userId) {
     await page.goto(`https://x.com/${userId}`);
     twitterHomePage.set(userId, page)
     return page;
+}
+
+
+export async function getRecentTwitterPage(userId){
+    if (recentTweetsPage.get(userId)) {
+        return recentTweetsPage.get(userId);
+    }
+    const browser = await getBrowser();
+    const page = await browser.newPage();
+    recentTweetsPage.set(userId, page)
+    return page
 }
 
 export function setPageOnListener(key,callback) {

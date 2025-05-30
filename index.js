@@ -1,8 +1,10 @@
 import express from 'express';
 import userRouter from './routes/userRoutes.js';
-import {scheduleJob} from "./services/jobService.js";
+import {scheduleJob, startRecentTweet} from "./services/jobService.js";
 import {closeBrowser, getBrowser} from "./services/puppeteerService.js";
+import config from 'dotenv'
 
+config.config();
 const app = express();
 const port = 3000;
 
@@ -11,7 +13,8 @@ app.use('/', userRouter);
 
 app.listen(port, async () => {
     console.log(`Server is running at http://localhost:${port}`);
-    await scheduleJob('TrumpDailyPosts')
+    scheduleJob('TrumpDailyPosts')
+    startRecentTweet('TrumpDailyPosts')
 });
 
 process.on('uncaughtException', async (err) => {

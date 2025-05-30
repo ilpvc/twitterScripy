@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { getTw } from '../services/twitterService.js';
-import { scheduleJob, cancelJob, startRecentTweet,stopRecentTweet } from '../services/jobService.js';
+import {scheduleJob, cancelJob, startRecentTweet, stopRecentTweet, getJobList} from '../services/jobService.js';
 import { getRecentTweet } from '../services/dbService.js';
 
 const router = Router();
@@ -72,6 +72,11 @@ router.get('/job/recent/stop', async (req, res) => {
         return res.status(400).send(result.error);
     }
     res.send(`Job stopped for user ${userId}`);
+})
+
+router.get('/job/list', async (req, res) => {
+        const jobs = await getJobList();
+        res.send(jobs);
 })
 
 router.get('/images', async (req, res) => {
