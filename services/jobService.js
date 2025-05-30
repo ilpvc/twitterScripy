@@ -20,6 +20,7 @@ export async function scheduleJob(userId) {
             console.log('isDev，[job]拉取twitter数据', userId);
             return;
         }
+        console.log('[job]拉取twitter数据', userId);
         await getTw(userId);
     });
 
@@ -49,10 +50,12 @@ export async function startRecentTweet(userId) {
         recentTweets.set(tweet.user.screenName, tweet.id);
     }
     recentjobs[userId] = schedule.scheduleJob('*/30 * * * * *', async () => {
+
         if (isDev()) {
-            console.log('isDev，[job]是否有新推文', userId);
+            console.log('isDev,[job]是否有新推文',userId);
             return
         }
+        console.log('[job]是否有新推文', userId);
         const tweet = await getRecentTweet(userId);
 
         if (recentTweets.get(tweet.user.screenName) !== tweet.id) {
