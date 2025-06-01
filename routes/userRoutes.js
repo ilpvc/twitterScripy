@@ -32,7 +32,9 @@ router.get('/job/start', async (req, res) => {
         return res.status(400).send(result.error);
     }
 
-    res.send(`Job started for user ${userId}`);
+    res.send({
+        message: `Job started： ${userId}`
+    });
 });
 
 router.get('/job/stop', async (req, res) => {
@@ -46,7 +48,9 @@ router.get('/job/stop', async (req, res) => {
         return res.status(400).send(result.error);
     }
 
-    res.send(`Job stopped for user ${userId}`);
+    res.send({
+        message: `Job stopped：${userId}`
+    });
 });
 
 
@@ -59,7 +63,9 @@ router.get('/job/recent/start', async (req, res) => {
     if (result.error) {
         return res.status(400).send(result.error);
     }
-    res.send(`Job started for user ${userId}`);
+    res.send({
+        message: `Job started：${userId}`
+    });
 })
 
 router.get('/job/recent/stop', async (req, res) => {
@@ -71,7 +77,9 @@ router.get('/job/recent/stop', async (req, res) => {
     if (result.error) {
         return res.status(400).send(result.error);
     }
-    res.send(`Job stopped for user ${userId}`);
+    res.send({
+        message: `Job stopped：${userId}`
+    });
 })
 
 router.get('/job/list', async (req, res) => {

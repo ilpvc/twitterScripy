@@ -6,25 +6,15 @@ import {getMongoClient} from "./utils/mongoUtil.js";
 import config from 'dotenv'
 import {isDev} from "./utils/appUtil.js";
 import { loggerMiddleware, errorLogStreamInstance } from './utils/logger.js';
+import addIsDevField from "./middleware/addIsDevField.js";
 
 
 config.config();
 const app = express();
 const port = 3000;
-
+app.use(express.json());
 app.use(loggerMiddleware);
-app.use((err, req, res, next) => {
-    const logLine = `[${new Date().toISOString()}] ${req.method} ${req.url} - ${err.stack || err}\n`;
-    errorLogStreamInstance.write(logLine);
-    res.status(500).send('服务器内部错误');
-});
-
-app.use((err, req, res, next) => {
-    console.log('req:', req);
-    console.log('res:', res);
-    next()
-})
-
+app.use(addIsDevField)
 app.use('/static', express.static('images'));
 app.use('/', userRouter);
 

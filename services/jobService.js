@@ -46,10 +46,9 @@ export async function startRecentTweet(userId) {
     }
     // 先缓存最新的推文id
     // TODO 如果是没有推文的用户会报错，后续处理
-    if (!isDev()){
-        const tweet = await getRecentTweet(userId);
-        recentTweets.set(tweet.user.screenName, tweet.id);
-    }
+    const tweet = await getRecentTweet(userId);
+    recentTweets.set(tweet.user.screenName, tweet.id);
+
     recentjobs[userId] = schedule.scheduleJob('*/30 * * * * *', async () => {
 
         // if (isDev()) {
