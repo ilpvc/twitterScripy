@@ -32,7 +32,6 @@ export async function getTw(userId) {
                 max = contentIds.reduce((a, b) => a.length > b.length || (a.length === b.length && a > b) ? a : b);
                 resultContent = extractTweetInfo(content);
                 await insertTweets(resultContent);
-                console.log('page', page);
                 console.log('max', max);
             }
         })
