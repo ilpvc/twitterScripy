@@ -24,6 +24,8 @@ build/
 # Vite cache
 .vite/
 
+.images/
+
 # Nuxt build output
 .nuxt/
 .output/
