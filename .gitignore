@@ -21,6 +21,8 @@ build/
 .svelte-kit/
 .angular/
 
+images/
+
 # Vite cache
 .vite/
 
