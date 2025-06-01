@@ -16,10 +16,10 @@ export async function scheduleJob(userId) {
 
     // await getTw(userId);
     jobs[userId] = schedule.scheduleJob('*/1 * * * *', async () => {
-        if (isDev()) {
-            console.log('isDev，[job]拉取twitter数据', userId);
-            return;
-        }
+        // if (isDev()) {
+        //     console.log('isDev，[job]拉取twitter数据', userId);
+        //     return;
+        // }
         console.log('[job]拉取twitter数据', userId);
         await getTw(userId);
     });
@@ -45,16 +45,17 @@ export async function startRecentTweet(userId) {
         return {error: 'Job already running for this user'};
     }
     // 先缓存最新的推文id
+    // TODO 如果是没有推文的用户会报错，后续处理
     if (!isDev()){
         const tweet = await getRecentTweet(userId);
         recentTweets.set(tweet.user.screenName, tweet.id);
     }
     recentjobs[userId] = schedule.scheduleJob('*/30 * * * * *', async () => {
 
-        if (isDev()) {
-            console.log('isDev,[job]是否有新推文',userId);
-            return
-        }
+        // if (isDev()) {
+        //     console.log('isDev,[job]是否有新推文',userId);
+        //     return
+        // }
         console.log('[job]是否有新推文', userId);
         const tweet = await getRecentTweet(userId);
 
@@ -62,8 +63,11 @@ export async function startRecentTweet(userId) {
             recentTweets.set(tweet.user.screenName, tweet.id);
             await getTwDetail(tweet.user.screenName, tweet.id)
             tweet.images = `http://${config.remoteAddr}/static/${tweet.user.screenName}_${tweet.id}.png`
+            tweet.isDev = isDev()
             console.log('新的推文发送n8n:', JSON.stringify(tweet));
-            await fetch('https://n8n-lyb.zeabur.app/webhook/2f8209da-8332-40e0-9409-54843e0e8dbf', {
+            const url = isDev()?'https://n8n-lyb.zeabur.app/webhook-test/2f8209da-8332-40e0-9409-54843e0e8dbf'
+                : 'https://n8n-lyb.zeabur.app/webhook/2f8209da-8332-40e0-9409-54843e0e8dbf'
+            await fetch(url, {
                 method: 'POST',
                 body: JSON.stringify(tweet)
             })
