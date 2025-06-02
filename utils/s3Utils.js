@@ -40,13 +40,6 @@ export async function getFileUrl(key, expiresIn = 3600) {
     return await getSignedUrl(s3, command, { expiresIn });
 }
 
-export async function getPublicUrl(key) {
-    if (s3Config.endpoint) {
-        return `${s3Config.endpoint}/${s3Config.bucket}/${key}`;
-    }
-    return `https://${s3Config.bucket}.s3.${s3Config.region}.amazonaws.com/${key}`;
-}
-
 // 删除文件
 export async function deleteFile(key) {
     const command = new DeleteObjectCommand({
