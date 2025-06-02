@@ -17,7 +17,7 @@ export async function getMongoClient() {
 
         await client.connect();
         clients[localMongo] = client;
-        console.log('[MongoDB] Connected and cached client');
+        console.ilog('[MongoDB] Connected and cached client');
     }
 
     return clients[localMongo];
@@ -32,7 +32,7 @@ export async function clearDB(databaseName) {
     const db = await getDb(databaseName); // 替换为实际数据库名
     const now = new Date();
     const result = await db.collection('tweets').deleteMany({ createdAt: { $lt: now } });
-    console.log('[MongoDB] Deleted:', result.deletedCount);
+    console.ilog('[MongoDB] Deleted:', result.deletedCount);
 }
 
 export async function closeClient(){

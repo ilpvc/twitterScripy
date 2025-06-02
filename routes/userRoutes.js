@@ -13,11 +13,6 @@ router.get('/user/recent', async (req, res) => {
         return res.status(400).send('id parameter is required');
     }
     const tweet = await getRecentTweet(screenName)
-    // if(recentTweets.get(tweet.user.screenName)!==tweet.id){
-    //     recentTweets.set(tweet.user.screenName, tweet.id);
-    //     console.log('新的推文发送n8n:', tweet);
-    //     // todo 发送消息到你n8m
-    // }
     res.send(tweet);
 });
 

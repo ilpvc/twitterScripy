@@ -14,14 +14,14 @@ export async function getTw(userId) {
         setPageOnListener('response', async (response) => {
             const status = response.status();
             if (status >= 300 && status < 400) {
-                console.log(`重定向响应，跳过获取内容: ${response.url()}`);
+                console.ilog(`重定向响应，跳过获取内容: ${response.url()}`);
                 return;
             }
 
             const url = response.url();
             if (url.includes('UserTweets')) {
                 const json = await response.json();
-                console.log('JSON 响应:', json.data.user.result);
+                console.ilog('JSON 响应:', json.data.user.result);
                 const instruction = json.data.user.result.timeline.timeline.instructions.find(i => i.type === 'TimelineAddEntries');
                 content = instruction ? instruction.entries : [];
 
@@ -32,15 +32,15 @@ export async function getTw(userId) {
                 max = contentIds.reduce((a, b) => a.length > b.length || (a.length === b.length && a > b) ? a : b);
                 resultContent = extractTweetInfo(content);
                 await insertTweets(resultContent);
-                console.log('max', max);
+                console.ilog('max', max);
             }
         })
         const page = await getTwitterHomePage(userId);
         await page.reload()
-        console.log('content数量：', content.length);
+        console.ilog('content数量：', content.length);
         return resultContent;
     } catch (e) {
-        console.log(e);
+        console.ilog(e);
         throw e;
     }
 }
@@ -64,17 +64,17 @@ export async function getTwDetail(userId, tweetId) {
         ]);
 
         const article = await page.$('article[data-testid="tweet"]');
-        console.log('article', article);
+        console.ilog('article', article);
         if (article) {
             const __filename = fileURLToPath(import.meta.url);
             const __dirname = path.dirname(__filename);
-            console.log('__dirname', __dirname);
+            console.ilog('__dirname', __dirname);
             const screenshotPath = path.join(__dirname, '../images', `${userId}_${tweetId}.png`);
-            console.log('screenshotPath', screenshotPath);
+            console.ilog('screenshotPath', screenshotPath);
             await article.screenshot({ path: screenshotPath });
-            console.log(`截图已保存到: ${screenshotPath}`);
+            console.ilog(`截图已保存到: ${screenshotPath}`);
         }
     } catch (e) {
-        console.log(e);
+        console.ilog(e);
     }
 }

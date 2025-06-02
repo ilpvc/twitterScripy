@@ -9,7 +9,7 @@ export async function getBrowser() {
     if (browser) {
         return browser;
     }
-    console.log('start Browser');
+    console.ilog('start Browser');
     browser = await puppeteer.launch({
         headless: false,
         userDataDir: 'C:\\temp\\chrome-debug'
@@ -20,7 +20,7 @@ export async function getBrowser() {
 
 export async function closeBrowser() {
     await browser.close();
-    console.log('browser closed');
+    console.ilog('browser closed');
 }
 
 export async function getTwitterHomePage(userId) {

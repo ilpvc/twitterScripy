@@ -9,7 +9,7 @@ const recentjobs = {};
 
 
 export async function scheduleJob(userId) {
-    console.log('scheduleJob:', userId);
+    console.ilog('scheduleJob:', userId);
     if (jobs[userId]) {
         return {error: 'Job already running for this user'};
     }
@@ -17,10 +17,10 @@ export async function scheduleJob(userId) {
     // await getTw(userId);
     jobs[userId] = schedule.scheduleJob('*/1 * * * *', async () => {
         // if (isDev()) {
-        //     console.log('isDev，[job]拉取twitter数据', userId);
+        //     console.ilog('isDev，[job]拉取twitter数据', userId);
         //     return;
         // }
-        console.log('[job]拉取twitter数据', userId);
+        console.ilog('[job]拉取twitter数据', userId);
         await getTw(userId);
     });
 
@@ -40,7 +40,7 @@ export async function cancelJob(userId) {
 const recentTweets = new Map();
 
 export async function startRecentTweet(userId) {
-    console.log('recentJob:', userId);
+    console.ilog('recentJob:', userId);
     if (recentjobs[userId]) {
         return {error: 'Job already running for this user'};
     }
@@ -52,10 +52,10 @@ export async function startRecentTweet(userId) {
     recentjobs[userId] = schedule.scheduleJob('*/30 * * * * *', async () => {
 
         // if (isDev()) {
-        //     console.log('isDev,[job]是否有新推文',userId);
+        //     console.ilog('isDev,[job]是否有新推文',userId);
         //     return
         // }
-        console.log('[job]是否有新推文', userId);
+        console.ilog('[job]是否有新推文', userId);
         const tweet = await getRecentTweet(userId);
 
         if (recentTweets.get(tweet.user.screenName) !== tweet.id) {
@@ -63,7 +63,7 @@ export async function startRecentTweet(userId) {
             await getTwDetail(tweet.user.screenName, tweet.id)
             tweet.images = `http://${config.remoteAddr}/static/${tweet.user.screenName}_${tweet.id}.png`
             tweet.isDev = isDev()
-            console.log('新的推文发送n8n:', JSON.stringify(tweet));
+            console.ilog('新的推文发送n8n:', JSON.stringify(tweet));
             const url = isDev()?'https://n8n-lyb.zeabur.app/webhook-test/2f8209da-8332-40e0-9409-54843e0e8dbf'
                 : 'https://n8n-lyb.zeabur.app/webhook/2f8209da-8332-40e0-9409-54843e0e8dbf'
             await fetch(url, {
@@ -88,8 +88,8 @@ export async function stopRecentTweet(userId) {
 export async function getJobList() {
     const jobList = Object.keys(jobs)
     const recentJobList = Object.keys(recentjobs)
-    console.log('jobList:', jobs);
-    console.log('recentJobList:', recentjobs);
+    console.ilog('jobList:', jobs);
+    console.ilog('recentJobList:', recentjobs);
     return {
         normal: jobList,
         recent: recentJobList
