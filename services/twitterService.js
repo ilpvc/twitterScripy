@@ -4,6 +4,8 @@ import { fileURLToPath } from 'url';
 import { extractTweetInfo } from '../utils/twitter.js';
 import { insertTweets } from './dbService.js';
 import { getRecentTwitterPage, getTwitterHomePage, setPageOnListener} from "./puppeteerService.js";
+import imageStorage from '../utils/imageStorage.js';
+import config from '../config/config.js';
 
 export async function getTw(userId) {
     try {
@@ -66,13 +68,12 @@ export async function getTwDetail(userId, tweetId) {
         const article = await page.$('article[data-testid="tweet"]');
         console.ilog('article', article);
         if (article) {
-            const __filename = fileURLToPath(import.meta.url);
-            const __dirname = path.dirname(__filename);
-            console.ilog('__dirname', __dirname);
-            const screenshotPath = path.join(__dirname, '../images', `${userId}_${tweetId}.png`);
-            console.ilog('screenshotPath', screenshotPath);
-            await article.screenshot({ path: screenshotPath });
-            console.ilog(`截图已保存到: ${screenshotPath}`);
+            return await imageStorage.save({
+                userId,
+                tweetId,
+                element: article,
+                storageType: config.imageStorageType
+            });
         }
     } catch (e) {
         console.ilog(e);

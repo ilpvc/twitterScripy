@@ -3,6 +3,8 @@ import {getTw, getTwDetail} from './twitterService.js';
 import {getRecentTweet} from './dbService.js';
 import config from "../config/config.js";
 import {isDev} from "../utils/appUtil.js";
+import {getSupabaseUrl} from "../utils/urlUtil.js";
+import {getFileUrl} from "../utils/s3Utils.js";
 
 const jobs = {};
 const recentjobs = {};
@@ -60,12 +62,17 @@ export async function startRecentTweet(userId) {
 
         if (recentTweets.get(tweet.user.screenName) !== tweet.id) {
             recentTweets.set(tweet.user.screenName, tweet.id);
-            await getTwDetail(tweet.user.screenName, tweet.id)
-            tweet.images = `http://${config.remoteAddr}/static/${tweet.user.screenName}_${tweet.id}.png`
+            const detailRes = await getTwDetail(tweet.user.screenName, tweet.id)
+            console.log('detailRes: ',detailRes)
+            if (config.imageStorageType === 'local'){
+                tweet.images = `http://${config.remoteAddr}/static/${tweet.user.screenName}_${tweet.id}.png`
+            }else if (config.imageStorageType === 's3'){
+                tweet.images = getSupabaseUrl(await getFileUrl(detailRes))
+            }
+
             tweet.isDev = isDev()
             console.ilog('新的推文发送n8n:', JSON.stringify(tweet));
-            const url = isDev()?'https://n8n-lyb.zeabur.app/webhook-test/2f8209da-8332-40e0-9409-54843e0e8dbf'
-                : 'https://n8n-lyb.zeabur.app/webhook/2f8209da-8332-40e0-9409-54843e0e8dbf'
+            const url = 'https://n8n-lyb.zeabur.app/webhook/2f8209da-8332-40e0-9409-54843e0e8dbf'
             await fetch(url, {
                 method: 'POST',
                 body: JSON.stringify(tweet)

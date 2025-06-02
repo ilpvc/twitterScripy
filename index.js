@@ -1,28 +1,30 @@
+import 'dotenv/config.js'
 import express from 'express';
 import userRouter from './routes/userRoutes.js';
 import {scheduleJob, startRecentTweet} from "./services/jobService.js";
-import {closeBrowser, getBrowser} from "./services/puppeteerService.js";
+import {closeBrowser} from "./services/puppeteerService.js";
 import {getMongoClient} from "./utils/mongoUtil.js";
-import config from 'dotenv'
+
 import {isDev} from "./utils/appUtil.js";
-import { loggerMiddleware, errorLogStreamInstance } from './utils/logger.js';
 import addIsDevField from "./middleware/addIsDevField.js";
 import './utils/iLog.js';
+import config from "./config/config.js";
 
-
-config.config();
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 app.use(express.json());
-app.use(loggerMiddleware);
 app.use(addIsDevField)
 app.use('/static', express.static('images'));
 app.use('/', userRouter);
 
+const defaultStartUser = isDev() ? config.autoStartUser.dev : config.autoStartUser.prod;
+
 app.listen(port, async () => {
     console.ilog(`Server is running at http://localhost:${port}`);
-    scheduleJob('TrumpDailyPosts')
-    startRecentTweet('TrumpDailyPosts')
+    for (const userId of defaultStartUser) {
+        scheduleJob(userId)
+        startRecentTweet(userId)
+    }
 });
 
 process.on('uncaughtException', async (err) => {
@@ -46,8 +48,7 @@ async function cleanupAndExit(error) {
     }
     console.ilog('执行清理逻辑...', errorBody);
     try {
-        const url = isDev()?'https://n8n-lyb.zeabur.app/webhook-test/b04e5c37-1b16-4527-a061-84dc46b05d62':
-            'https://n8n-lyb.zeabur.app/webhook/b04e5c37-1b16-4527-a061-84dc46b05d62'
+        const url = 'https://n8n-lyb.zeabur.app/webhook/b04e5c37-1b16-4527-a061-84dc46b05d62'
         await fetch(url,{
             method: 'POST',
             body: JSON.stringify(errorBody)
