@@ -1,0 +1,5 @@
+给我将以下的话进行翻译进行然后按照以下格式返回:
+
+#|%原文：{{ $('Code1').item.json.full_text }}
+#|%中文：翻译后的内容
+#|%原文连接：https://x.com/{{ $json.user.screenName }}/status/{{ $json.id }}

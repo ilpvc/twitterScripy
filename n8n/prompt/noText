@@ -1,0 +1,5 @@
+不作修改返回给我以下内容
+
+#|%原文：推文为图片或者视频
+#|%中文：推文为图片或者视频
+#|%原文连接：https://x.com/{{ $json.user.screenName }}/status/{{ $json.id }}

@@ -1,0 +1,49 @@
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>【twitter爬虫】程序运行错误通知</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #e74c3c; color: white; padding: 10px 20px; border-radius: 5px 5px 0 0; }
+        .content { border: 1px solid #ddd; padding: 20px; border-radius: 0 0 5px 5px; }
+        .error-detail { background-color: #f9f9f9; padding: 15px; border-left: 4px solid #e74c3c; margin: 10px 0; }
+        .footer { margin-top: 20px; font-size: 12px; color: #777; text-align: center; }
+        .button { display: inline-block; background-color: #e74c3c; color: white; padding: 10px 15px; text-decoration: none; border-radius: 3px; }
+        /* 新增错误信息样式 */
+        #error-message {
+            white-space: pre-wrap;  /* 保留空格但自动换行 */
+            word-wrap: break-word;  /* 长单词或URL强制换行 */
+            overflow-x: auto;       /* 横向滚动条（仅在必要时显示） */
+            max-width: 100%;        /* 限制最大宽度 */
+            display: block;         /* 确保宽度生效 */
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 3px;
+            font-family: monospace; /* 等宽字体保持对齐 */
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <h1>🚨 程序运行错误通知</h1>
+</div>
+
+<div class="content">
+    <p>您好，系统检测到以下程序运行错误，请及时处理：</p>
+
+    <div class="error-detail">
+        <h3>错误详情</h3>
+        <p><strong>错误时间：</strong> <span id="error-time">{{ $json.time }}</span></p>
+        <p><strong>运行环境：</strong> <span id="error-time">{{ $json.env }}</span></p>
+        <p><strong>程序名称：</strong> <span id="app-name">thump爬虫服务</span></p>
+        <p><strong>错误信息：</strong></p>
+        <pre id="error-message">{{ $json.error }}</pre>
+    </div>
+</div>
+
+<div class="footer">
+    <p>此邮件为系统自动发送，请勿直接回复。<br>
+        如需修改通知设置，请访问 <a href="http://your-app.com/notifications">通知管理中心</a></p>
+</div>
+</body>
+</html>

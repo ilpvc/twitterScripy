@@ -1,0 +1,147 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>推文内容</title>
+    <style type="text/css">
+        /* 内联样式确保邮件客户端兼容 */
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.4;
+            color: #333333;
+            margin: 0;
+            padding: 0;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        .tweet-card {
+            border: 1px solid #e1e8ed;
+            border-radius: 12px;
+            overflow: hidden;
+            background-color: #ffffff;
+        }
+
+        .tweet-header {
+            padding: 12px;
+            border-bottom: 1px solid #e1e8ed;
+        }
+
+        .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: inline-block;
+            vertical-align: middle;
+            border: 2px solid #1da1f2;
+        }
+
+        .user-info {
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 10px;
+        }
+
+        .username {
+            font-weight: bold;
+            font-size: 16px;
+            margin: 0;
+            color: #14171a;
+        }
+
+        .handle {
+            font-size: 14px;
+            color: #657786;
+            margin: 2px 0 0;
+        }
+
+        .tweet-content {
+            padding: 12px;
+            font-size: 16px;
+            word-wrap: break-word;
+        }
+
+        .media-container {
+            margin-top: 10px;
+            border-radius: 8px;
+            overflow: hidden;
+            line-height: 0; /* 修复邮件客户端图片下方间隙 */
+        }
+
+        .media-image {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .tweet-footer {
+            padding: 12px;
+            font-size: 14px;
+            color: #657786;
+            border-top: 1px solid #e1e8ed;
+        }
+
+        /* 响应式调整 */
+        @media screen and (max-width: 480px) {
+            .email-container {
+                padding: 10px;
+            }
+            .avatar {
+                width: 40px;
+                height: 40px;
+            }
+            .tweet-content {
+                font-size: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="email-container">
+    <div class="tweet-card">
+        <div class="tweet-header">
+            <img src="https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png" class="avatar" alt="用户头像">
+            <div class="user-info">
+                <p class="username">{{ $('Code1').item.json.user.name }}</p>
+                <p class="handle">@{{ $('Code1').item.json.user.screenName }}</p>
+            </div>
+        </div>
+
+        <div class="tweet-content">
+            <!-- 这里是推文文本内容 -->
+            <p>
+                {{ $('Code').item.json.ori }}
+            </p>
+            <p>
+                {{ $('Code').item.json.zh }}
+            </p>
+
+            <!-- 媒体内容 - 图片或视频 -->
+            <div class="media-container">
+                <img src="{{ $('Code1').item.json.images }}" class="media-image" alt="推文图片">
+
+                <div style="background-color: #000; text-align: center; padding: 20px 0;">
+                    <span style="color: white;">[视频内容]</span>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="tweet-footer">
+            <!-- 这里可以添加时间、互动数据等 -->
+            <span>{{ $('Code1').item.json.formatted }}</span>
+        </div>
+    </div>
+    <div style="margin-top: 10px;">
+        原地址：<a href="https://x.com/{{ $('Code1').item.json.user.screenName }}/status/{{ $('Code1').item.json.id }}">https://x.com/{{ $('Code1').item.json.user.screenName }}/status/{{ $('Code1').item.json.id }}</a>
+    </div>
+</div>
+</body>
+</html>
