@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 
 const menuItems = [
   { label: '首页', path: '/' },
+  { label: '脚本管理', path: '/scripts' },
   { label: '登录', path: '/login' },
   // 可扩展更多菜单项
 ];
