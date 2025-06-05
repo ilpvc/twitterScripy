@@ -5,6 +5,7 @@ const menuItems = [
   { label: '首页', path: '/' },
   { label: '脚本管理', path: '/scripts' },
   { label: '登录', path: '/login' },
+  { label: '推送管理', path: '/push-manage'}
   // 可扩展更多菜单项
 ];
 
