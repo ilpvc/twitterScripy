@@ -20,7 +20,10 @@ http.interceptors.request.use(
 
 // 响应拦截器
 http.interceptors.response.use(
-  (res: AxiosResponse) => res.data,
+  (res: AxiosResponse) => {
+      console.log(res);
+      return res.data
+  },
   (error: any) => {
     // 可统一处理错误
     return Promise.reject(error);

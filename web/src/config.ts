@@ -3,7 +3,7 @@ const ENV = (process.env.NEXT_PUBLIC_ENV || process.env.NODE_ENV || 'development
 
 const config: Record<EnvKey, { API_BASE_URL: string }> = {
   development: {
-    API_BASE_URL: 'http://192.168.3.34:3000',
+    API_BASE_URL: 'http://localhost:3001',
   },
   production: {
     API_BASE_URL: 'https://api.example.com',

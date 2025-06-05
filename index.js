@@ -4,7 +4,7 @@ import userRouter from './routes/userRoutes.js';
 import {scheduleJob, startRecentTweet} from "./services/jobService.js";
 import {closeBrowser} from "./services/puppeteerService.js";
 import {getMongoClient} from "./utils/mongoUtil.js";
-
+import cors from 'cors';
 import {isDev} from "./utils/appUtil.js";
 import addIsDevField from "./middleware/addIsDevField.js";
 import './utils/iLog.js';
@@ -12,6 +12,7 @@ import config from "./config/config.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
+app.use(cors());
 app.use(express.json());
 app.use(addIsDevField)
 app.use('/static', express.static('images'));

@@ -10,12 +10,13 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.9",
+    "antd": "^5.25.4",
+    "axios": "^1.6.8",
     "dotenv": "^16.5.0",
     "next": "15.3.3",
     "postcss": "^8.5.4",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "axios": "^1.6.8"
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

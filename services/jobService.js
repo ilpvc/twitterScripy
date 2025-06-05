@@ -18,10 +18,10 @@ export async function scheduleJob(userId) {
 
     // await getTw(userId);
     jobs[userId] = schedule.scheduleJob('*/1 * * * *', async () => {
-        // if (isDev()) {
-        //     console.ilog('isDev，[job]拉取twitter数据', userId);
-        //     return;
-        // }
+        if (isDev()) {
+            console.ilog('isDev，[job]拉取twitter数据', userId);
+            return;
+        }
         console.ilog('[job]拉取twitter数据', userId);
         await getTw(userId);
     });
@@ -48,15 +48,15 @@ export async function startRecentTweet(userId) {
     }
     // 先缓存最新的推文id
     // TODO 如果是没有推文的用户会报错，后续处理
-    const tweet = await getRecentTweet(userId);
+    const tweet = await getRecentTweet(userId) || {id: 0,user: {screenName: ''}};
     recentTweets.set(tweet.user.screenName, tweet.id);
 
     recentjobs[userId] = schedule.scheduleJob('*/30 * * * * *', async () => {
 
-        // if (isDev()) {
-        //     console.ilog('isDev,[job]是否有新推文',userId);
-        //     return
-        // }
+        if (isDev()) {
+            console.ilog('isDev,[job]是否有新推文',userId);
+            return
+        }
         console.ilog('[job]是否有新推文', userId);
         const tweet = await getRecentTweet(userId);
 
