@@ -49,6 +49,9 @@ export async function startRecentTweet(userId) {
     // 先缓存最新的推文id
     // TODO 如果是没有推文的用户会报错，后续处理
     const tweet = await getRecentTweet(userId) || {id: 0,user: {screenName: ''}};
+    if (tweet.error){
+        return;
+    }
     recentTweets.set(tweet.user.screenName, tweet.id);
 
     recentjobs[userId] = schedule.scheduleJob('*/30 * * * * *', async () => {
@@ -59,7 +62,9 @@ export async function startRecentTweet(userId) {
         // }
         console.ilog('[job]是否有新推文', userId);
         const tweet = await getRecentTweet(userId);
-
+        if (tweet.error) {
+            return;
+        }
         if (recentTweets.get(tweet.user.screenName) !== tweet.id) {
             recentTweets.set(tweet.user.screenName, tweet.id);
             const detailRes = await getTwDetail(tweet.user.screenName, tweet.id)
