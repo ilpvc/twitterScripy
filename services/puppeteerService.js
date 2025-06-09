@@ -1,4 +1,5 @@
 import puppeteer from "puppeteer";
+import {sendAlertEmail} from "../api/n8n.js";
 
 let browser = null;
 let twitterHomePage = new Map();
@@ -33,9 +34,27 @@ export async function getTwitterHomePage(userId) {
         page.on(item.key, item.callback)
     }
 
-    await page.goto(`https://x.com/${userId}`);
-    twitterHomePage.set(userId, page)
-    return page;
+    let retryCount = 0;
+    while (retryCount < 3) {
+        try {
+            await page.goto(`https://x.com/${userId}`, { timeout: 30000 });
+            twitterHomePage.set(userId, page);
+            return page;
+        } catch (error) {
+            retryCount++;
+            if (retryCount === 3) {
+                console.ierror(`Failed to load Twitter page after 3 attempts: ${error}`);
+                await sendAlertEmail({
+                    time: new Date().toLocaleString(),
+                    env: process.env.NODE_ENV,
+                    error: error
+                })
+                throw error;
+            }
+            console.warn(`Retry ${retryCount} loading Twitter page for user ${userId}`);
+            await new Promise(resolve => setTimeout(resolve, 5000));
+        }
+    }
 }
 
 
@@ -45,8 +64,28 @@ export async function getRecentTwitterPage(userId){
     }
     const browser = await getBrowser();
     const page = await browser.newPage();
-    recentTweetsPage.set(userId, page)
-    return page
+
+    let retryCount = 0;
+    while (retryCount < 3) {
+        try {
+            await page.goto(`https://x.com/${userId}/with_replies`, { timeout: 30000 });
+            recentTweetsPage.set(userId, page);
+            return page;
+        } catch (error) {
+            retryCount++;
+            if (retryCount === 3) {
+                console.ierror(`Failed to load recent tweets page after 3 attempts: ${error}`);
+                await sendAlertEmail({
+                    time: new Date().toLocaleString(),
+                    env: process.env.NODE_ENV,
+                    error: error
+                })
+                throw error;
+            }
+            console.warn(`Retry ${retryCount} loading recent tweets for user ${userId}`);
+            await new Promise(resolve => setTimeout(resolve, 5000));
+        }
+    }
 }
 
 export function setPageOnListener(key,callback) {
