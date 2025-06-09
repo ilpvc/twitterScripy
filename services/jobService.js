@@ -47,13 +47,10 @@ export async function startRecentTweet(userId) {
         return {error: 'Job already running for this user'};
     }
     // 先缓存最新的推文id
-    // TODO 如果是没有推文的用户会报错，后续处理
     const tweet = await getRecentTweet(userId) || {id: 0,user: {screenName: ''}};
-    if (tweet.error){
-        return;
+    if (!tweet.error){
+        recentTweets.set(tweet.user.screenName, tweet.id);
     }
-    recentTweets.set(tweet.user.screenName, tweet.id);
-
     recentjobs[userId] = schedule.scheduleJob('*/30 * * * * *', async () => {
 
         // if (isDev()) {
@@ -68,6 +65,9 @@ export async function startRecentTweet(userId) {
         if (recentTweets.get(tweet.user.screenName) !== tweet.id) {
             recentTweets.set(tweet.user.screenName, tweet.id);
             const detailRes = await getTwDetail(tweet.user.screenName, tweet.id)
+            if (!detailRes){
+                return
+            }
             console.ilog('detailRes: ',detailRes)
             if (config.imageStorageType === 'local'){
                 tweet.images = `http://${config.remoteAddr}/static/${tweet.user.screenName}_${tweet.id}.png`
