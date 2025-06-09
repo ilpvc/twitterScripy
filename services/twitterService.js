@@ -49,7 +49,7 @@ export async function getTw(userId) {
 
 
 
-export async function getTwDetail(userId, tweetId) {
+export async function getTwDetail(userId, tweetId, isUpload = true) {
     try {
         const page = await getRecentTwitterPage(userId)
         await page.goto(`https://x.com/${userId}/status/${tweetId}`);
@@ -66,14 +66,23 @@ export async function getTwDetail(userId, tweetId) {
         ]);
 
         const article = await page.$('article[data-testid="tweet"]');
-        console.ilog('article', article);
-        if (article) {
-            return await imageStorage.save({
+        const tweetTexts = await page.$$eval('div[data-testid="tweetText"]', elements =>
+            elements.map(el => el.innerText.trim())
+        );
+        // contents['0']
+
+        console.ilog('contents', tweetTexts);
+        if (article && isUpload) {
+            const key = await imageStorage.save({
                 userId,
                 tweetId,
                 element: article,
                 storageType: config.imageStorageType
             });
+            return {
+                key,
+                tweetTexts
+            }
         }
     } catch (e) {
         console.ilog(e);

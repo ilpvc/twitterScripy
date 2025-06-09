@@ -4,6 +4,7 @@ import path from 'path';
 import {getFileUrl, uploadFile} from "./utils/s3Utils.js";
 import "./utils/iLog.js"
 import {getOriginPath} from "./utils/urlUtil.js";
+import {getTwDetail} from "./services/twitterService.js";
 
 // console.log('环境变量', process.env)
 export async function testUploadImage() {
@@ -22,5 +23,5 @@ export async function testUploadImage() {
 const url = 'https://ntxfnkftiidhqgfodgwu.supabase.co/storage/v1/s3/twitter-scripy/images/TrumpDailyPosts_1928996246372397291.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-\n' +
     'Amz-Credential=bcc7d8b5a35184f4b17e646112991bc1%2F20250602%2Fap-southeast-1%2Fs3%2Faws4_request&X-Amz-Date=20250602T065840Z&X-Amz-Expires=3600&X-Amz-Signature=49d6162247d89893c7d40701531929b88482041a0ceb009e09f25b5d37000e82&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject\n'
 
-console.log(getOriginPath(await getFileUrl('twitter/screenshot/CatriceJes47876/1929449552878161976.png')))
+await getTwDetail('RuiHuang_art', '1931364630024323207', false)
 
