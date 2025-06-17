@@ -1,0 +1,728 @@
+{
+  "name": "自动发送推文邮件",
+  "nodes": [
+    {
+      "parameters": {
+        "sseEndpoint": "http://150.158.176.172:20005/sse"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1,
+      "position": [
+        700,
+        300
+      ],
+      "id": "d5d7b2ba-34a5-44ef-b049-9cb865a595d8",
+      "name": "MCP Client",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=1、翻译这条消息 {{ $('Code1').item.json.full_text }}  然后按如下格式展示\n2、Analyze the following tweet and its selected replies. I'm an active stock trader. Assess how this content could impact the stock market or broader economy. Highlight potential signals, sentiment, or sectors affected. Be specific.分析结果不超过200字，然后内容放在AI分析结果栏，需要分析的内容：{{ $json.tweetTexts }}\n3、将之前的结果按照如下格式展示，不需要其它无关言语，回复内容用中文回复。\n\n#|%原文：原文\n#|%中文：翻译后的内容\n#|%原文连接：https://x.com/{{ $json.user.screenName }}/status/{{ $json.id }}\n#|%AI分析: 分析结果\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        540,
+        60
+      ],
+      "id": "f68d9858-2f78-4a37-94d5-5120d3400d51",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [
+        540,
+        280
+      ],
+      "id": "2bb870ac-e3cc-45a1-bc28-014f47eb053b",
+      "name": "DeepSeek Chat Model",
+      "credentials": {
+        "deepSeekApi": {
+          "id": "gjRGzLQU7Ppav53U",
+          "name": "DeepSeek account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.weixin.qq.com/cgi-bin/token",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "grant_type",
+              "value": "client_credential"
+            },
+            {
+              "name": "appid",
+              "value": "wx558c5486648c5c45"
+            },
+            {
+              "name": "secret",
+              "value": "f8a5e2e16db00da17da11546322b587e"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        240
+      ],
+      "id": "9a3f7cca-24a5-4862-86be-2423fa4e0b10",
+      "name": "HTTP Request",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.weixin.qq.com/cgi-bin/message/template/send",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "access_token",
+              "value": "={{ $('HTTP Request').item.json.access_token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"touser\": \"{{ $json.data.openid[$runIndex] }}\",\n    \"template_id\": \"HOLlkQXz7-fXYAdCmRrY50Ar6B2_BuGI2lnsYNhiA_s\",\n    \"url\": \"{{ $('Webhook').item.json.body.text }}\",\n    \"data\":{\n        \"ori\": {\n            \"value\": \"{{ $('Code').item.json.ori }}\",\n            \"color\": \"#17B26A\"\n        },\n        \"zh\": {\n            \"value\": \"{{ $('Code').item.json.zh }}\",\n            \"color\": \"#17B26A\"\n        },\n        \"url\": {\n            \"value\": \"{{ $('Code').item.json.other }}\",\n            \"color\": \"#17B26A\"\n        }\n    }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1380,
+        320
+      ],
+      "id": "8236f16e-d1d6-493a-9a8d-ae961a0693d8",
+      "name": "HTTP Request1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "2f8209da-8332-40e0-9409-54843e0e8dbf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        20,
+        60
+      ],
+      "id": "36226808-fe7b-4cc3-b1d8-985950d34904",
+      "name": "Webhook",
+      "webhookId": "2f8209da-8332-40e0-9409-54843e0e8dbf"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nvar input = $input.first().json.output.replace(/\\n/g, \"\");\nvar ori = input.split('#|%')[1].trim()\nvar zh = input.split('#|%')[2].trim()\nvar other = input.split('#|%')[3].trim()\nvar ai = input.split('#|%')[4].trim()\n// var emails= ['a13790903420@outlook.com']\nvar emails= ['a13790903420@outlook.com','2332084024@qq.com']\nreturn {\n  ori,\n  zh,\n  other,\n  emails,\n  ai\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1060,
+        60
+      ],
+      "id": "2508a90d-5fd1-42e0-8ce2-942b76b90a90",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c4167fdc-e9e5-43af-ba7a-26d14a8adb20",
+              "leftValue": "={{ $json.full_text }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1700,
+        780
+      ],
+      "id": "96b58263-d5eb-40c2-a580-0feb33f18c18",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [
+        2020,
+        980
+      ],
+      "id": "e2437d6a-b3f4-4ce4-a70e-be8dee638668",
+      "name": "DeepSeek Chat Model1",
+      "credentials": {
+        "deepSeekApi": {
+          "id": "gjRGzLQU7Ppav53U",
+          "name": "DeepSeek account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=不作修改返回给我以下内容\n\n#|%原文：推文为图片或者视频\n#|%中文：推文为图片或者视频\n#|%原文连接：https://x.com/{{ $json.user.screenName }}/status/{{ $json.id }}\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        1960,
+        800
+      ],
+      "id": "41e2f002-7b48-46cc-b4b4-83b276c8303d",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "url": "https://api.weixin.qq.com/cgi-bin/user/get",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "access_token",
+              "value": "={{ $('HTTP Request').item.json.access_token }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1060,
+        300
+      ],
+      "id": "4e8d5fcf-73c3-449e-8fb2-5224cf28e12b",
+      "name": "HTTP Request2",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "batchSize": "=1",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1740,
+        80
+      ],
+      "id": "ece716dd-d7ec-4b6c-be13-331f7a3b4085",
+      "name": "Loop Over Items",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "fromEmail": "ilpvcx@qq.com",
+        "toEmail": "={{ $('Code2').item.json.addr }}",
+        "subject": "特朗普新推文通知",
+        "html": "=<html>\n    <head>\n        <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n        <title>推文内容</title>\n        <style>\n            type=\"text/css\"\n            /* 内联样式确保邮件客户端兼容 */\n            body {\n                font-family: Arial, Helvetica, sans-serif;\n                line-height: 1.4;\n                color: #333333;\n                margin: 0;\n                padding: 0;\n                -webkit-text-size-adjust: 100%;\n                -ms-text-size-adjust: 100%;\n            }\n\n            .email-container {\n                max-width: 600px;\n                margin: 0 auto;\n                padding: 15px;\n            }\n\n            .tweet-card {\n                border: 1px solid #e1e8ed;\n                border-radius: 12px;\n                overflow: hidden;\n                background-color: #ffffff;\n            }\n\n            .tweet-header {\n                padding: 12px;\n                border-bottom: 1px solid #e1e8ed;\n            }\n\n            .avatar {\n                width: 48px;\n                height: 48px;\n                border-radius: 50%;\n                display: inline-block;\n                vertical-align: middle;\n                border: 2px solid #1da1f2;\n            }\n\n            .user-info {\n                display: inline-block;\n                vertical-align: middle;\n                margin-left: 10px;\n            }\n\n            .username {\n                font-weight: bold;\n                font-size: 16px;\n                margin: 0;\n                color: #14171a;\n            }\n\n            .handle {\n                font-size: 14px;\n                color: #657786;\n                margin: 2px 0 0;\n            }\n\n            .tweet-content {\n                padding: 12px;\n                font-size: 16px;\n                word-wrap: break-word;\n            }\n\n            .media-container {\n                margin-top: 10px;\n                border-radius: 8px;\n                overflow: hidden;\n                line-height: 0; /* 修复邮件客户端图片下方间隙 */\n            }\n\n            .media-image {\n                max-width: 100%;\n                height: auto;\n                display: block;\n            }\n\n            .tweet-footer {\n                padding: 12px;\n                font-size: 14px;\n                color: #657786;\n                border-top: 1px solid #e1e8ed;\n            }\n\n            /* 响应式调整 */\n            @media screen and(max-width: 480px) {\n                .email-container {\n                    padding: 10px;\n                }\n                .avatar {\n                    width: 40px;\n                    height: 40px;\n                }\n                .tweet-content {\n                    font-size: 15px;\n                }\n            }\n        </style>\n    </head>\n    <body>\n        <div class=\"email-container\">\n            <div class=\"tweet-card\">\n                <div class=\"tweet-header\">\n                    <img src=\"https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png\" class=\"avatar\" alt=\"用户头像\">\n                    <div class=\"user-info\">\n                        <p class=\"username\">{{ $('Code1').item.json.user.name }}</p>\n                        <p class=\"handle\">@{{ $('Code1').item.json.user.screenName }}</p>\n                    </div>\n                </div>\n\n                <div\n                    class=\"tweet-content\">\n                    <!-- 这里是推文文本内容 -->\n                    <p>\n                        {{ $('Code').item.json.ori }}\n                    </p>\n                    <p>\n                        {{ $('Code').item.json.zh }}\n                    </p>\n\n                    <!-- 媒体内容 - 图片或视频 -->\n                    <div class=\"media-container\">\n                        <img src=\"{{ $('Code1').item.json.images }}\" class=\"media-image\" alt=\"推文图片\">\n\n                        <div style=\"background-color: #000; text-align: center; padding: 20px 0;\">\n                            <span style=\"color: white;\">[视频内容]</span>\n                        </div>\n\n                    </div>\n\n                </div>\n\n                <div\n                    class=\"tweet-footer\">\n                    <!-- 这里可以添加时间、互动数据等 -->\n                    <span>{{ $('Code1').item.json.formatted }}</span>\n                </div>\n            </div>\n            <div style=\"margin-top: 10px;\">\n                原地址：<a href=\"https://x.com/{{ $('Code1').item.json.user.screenName }}/status/{{ $('Code1').item.json.id }}\">https://x.com/{{ $('Code1').item.json.user.screenName }}/status/{{ $('Code1').item.json.id }}</a>\n            </div>\n\n            <!-- AI分析栏目 -->\n            <div class=\"tweet-card\" style=\"margin-top: 20px;\">\n                <div class=\"tweet-header\">\n                    <div style=\"font-weight: bold; color: #1da1f2;\">AI分析结果</div>\n                </div>\n                <div class=\"tweet-content\">\n                  {{ $('Code').item.json.ai }}\n                </div>\n            </div>\n        </div>\n    </body>\n</html>\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1980,
+        100
+      ],
+      "id": "ae41051e-a9e4-4640-bfee-24a813b94561",
+      "name": "Send Email",
+      "webhookId": "cd7a7331-dc5c-4641-a90e-a82ec9e13739",
+      "credentials": {
+        "smtp": {
+          "id": "GkmtEacYW16fC0XU",
+          "name": "SMTP account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "let input;\ntry {\n  input = JSON.parse($input.first().json.body);\n} catch (err) {\n  throw new Error(\"无效的 JSON 输入：\" + err.message);\n}\n\nlet formatted = null;\n\ntry {\n  if (!input.createdAt) {\n    throw new Error(\"缺少 createdAt 字段\");\n  }\n\n  const date = new Date(input.createdAt);\n  if (isNaN(date.getTime())) {\n    throw new Error(\"createdAt 不是有效的时间格式\");\n  }\n\n  const formatter = new Intl.DateTimeFormat('zh-CN', {\n    year: 'numeric',\n    month: '2-digit',\n    day: '2-digit',\n    hour: 'numeric',\n    minute: '2-digit',\n    hour12: true,\n    timeZone: 'Asia/Shanghai',\n  });\n\n  formatted = formatter.format(date);\n} catch (err) {\n  formatted = `格式化失败: ${err.message}`;\n}\n\nif (!input.full_text && input.text) {\n  input.full_text = input.text\n  input.full_text = input.full_text.replace(/[\\r\\n]+/g, ' ');\n}\n\nfor (let i = 0; i< input.tweetTexts.length; i++) {\n  input.tweetTexts[i] = input.tweetTexts[i].replace(/[\\r\\n]+/g, ' ');\n}\n\nreturn {\n  ...input,\n  formatted\n}\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        60
+      ],
+      "id": "f2e271e0-159f-4bad-92f5-11915f91a77b",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "jsCode": "var emails = [\n  {json: {addr: 'a13790903420@outlook.com'}},\n  {json: {addr: '2332084024@qq.com'}},\n  {json: {addr: '3325038475@qq.com'}}\n]\n\nvar testEmail = [\n  {json: {addr: '2332084024@qq.com'}}\n]\n// console.log(typeof $('Code1').first().json.isDev)\nif($('Code1').first().json.isDev){\n  return testEmail\n}\nreturn emails"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1280,
+        60
+      ],
+      "id": "1f12476a-fa83-42cc-ad49-ac745e77e038",
+      "name": "Code2"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "b04e5c37-1b16-4527-a061-84dc46b05d62",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        20,
+        780
+      ],
+      "id": "855c3e38-72f3-46ea-8845-818a51c10d9a",
+      "name": "Webhook1",
+      "webhookId": "b04e5c37-1b16-4527-a061-84dc46b05d62"
+    },
+    {
+      "parameters": {
+        "fromEmail": "ilpvcx@qq.com",
+        "toEmail": "2332084024@qq.com",
+        "subject": "爬虫宕机通知",
+        "html": "=<html lang=\"zh-CN\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>【twitter爬虫】程序运行错误通知</title>\n    <style>\n        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }\n        .header { background-color: #e74c3c; color: white; padding: 10px 20px; border-radius: 5px 5px 0 0; }\n        .content { border: 1px solid #ddd; padding: 20px; border-radius: 0 0 5px 5px; }\n        .error-detail { background-color: #f9f9f9; padding: 15px; border-left: 4px solid #e74c3c; margin: 10px 0; }\n        .footer { margin-top: 20px; font-size: 12px; color: #777; text-align: center; }\n        .button { display: inline-block; background-color: #e74c3c; color: white; padding: 10px 15px; text-decoration: none; border-radius: 3px; }\n        /* 新增错误信息样式 */\n        #error-message {\n            white-space: pre-wrap;  /* 保留空格但自动换行 */\n            word-wrap: break-word;  /* 长单词或URL强制换行 */\n            overflow-x: auto;       /* 横向滚动条（仅在必要时显示） */\n            max-width: 100%;        /* 限制最大宽度 */\n            display: block;         /* 确保宽度生效 */\n            padding: 10px;\n            background-color: #f0f0f0;\n            border-radius: 3px;\n            font-family: monospace; /* 等宽字体保持对齐 */\n        }\n    </style>\n</head>\n<body>\n    <div class=\"header\">\n        <h1>🚨 程序运行错误通知</h1>\n    </div>\n    \n    <div class=\"content\">\n        <p>您好，系统检测到以下程序运行错误，请及时处理：</p>\n        \n        <div class=\"error-detail\">\n            <h3>错误详情</h3>\n            <p><strong>错误时间：</strong> <span id=\"error-time\">{{ $json.time }}</span></p>\n            <p><strong>运行环境：</strong> <span id=\"error-time\">{{ $json.env }}</span></p>\n            <p><strong>程序名称：</strong> <span id=\"app-name\">thump爬虫服务</span></p>\n            <p><strong>错误信息：</strong></p>\n            <pre id=\"error-message\">{{ $json.error }}</pre>\n        </div>\n    </div>\n\n    <div class=\"footer\">\n        <p>此邮件为系统自动发送，请勿直接回复。<br>\n        如需修改通知设置，请访问 <a href=\"http://your-app.com/notifications\">通知管理中心</a></p>\n    </div>\n</body>\n</html>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        460,
+        780
+      ],
+      "id": "5e3feb4a-af50-42c3-bc18-0212c7b28282",
+      "name": "Send Email1",
+      "webhookId": "d90fb57a-8ab9-46ac-a55c-118f9c9f9a11",
+      "credentials": {
+        "smtp": {
+          "id": "GkmtEacYW16fC0XU",
+          "name": "SMTP account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "var input = $input.first().json.body\ninput = JSON.parse(input)\n\nreturn {\n  time: input.time,\n  env: input.env,\n  error: JSON.stringify(input.error)\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        780
+      ],
+      "id": "4b09349d-73cf-466b-82f8-68bd16fa7521",
+      "name": "Code3"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "945eeac0-8ceb-4622-a90f-10dbb02e014a",
+              "leftValue": "={{ $('Code1').item.json.entities.media }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1460,
+        60
+      ],
+      "id": "8180fc9d-5002-4ac7-92eb-ad8ba3cde297",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "b99aaaf0-0e6f-4ee2-a4aa-303540c32a43",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        20,
+        540
+      ],
+      "id": "a0e793f1-385f-4ab0-8bd8-4a067d590001",
+      "name": "Webhook2",
+      "webhookId": "b99aaaf0-0e6f-4ee2-a4aa-303540c32a43"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1cc9a35b-e438-4f1b-8cca-24512c3f27b7",
+              "leftValue": "={{ $json.isAuth }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        460,
+        540
+      ],
+      "id": "dcc51eb0-3713-42d1-81f0-10c4c5551fc2",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const token = $input.first().json.headers.authorization.replace('Bearer ', '');\n\nlet timestamp;\ntry {\n  const decoded = Buffer.from(token, 'base64').toString('utf-8');\n  timestamp = parseInt(decoded, 10);\n  console.log(timestamp)\n} catch (e) {\n  return { isAuth: false };\n}\n\nif (isNaN(timestamp)) return { isAuth: false };\n\nconst now = Date.now();\nconst diff = Math.abs(now - timestamp); // 单位：毫秒\n\nif (diff > 10 * 1000) {\n  return { isAuth: false };\n}\n\nconst isEmail = email => /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);\nif (!isEmail) {\n  return { isAuth: false };\n}\n\nreturn { isAuth: true };\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        540
+      ],
+      "id": "0ff39c7a-d931-4ac4-a33d-95fbfd6981be",
+      "name": "Code4"
+    },
+    {
+      "parameters": {
+        "fromEmail": "ilpvcx@qq.com",
+        "toEmail": "=ilpvcx@163.com",
+        "subject": "={{ $('Webhook2').item.json.body.subject }}",
+        "emailFormat": "text",
+        "text": "=来自开发接单网站的留言：\n用户名：{{ $('Webhook2').item.json.body.name }}\n用户邮箱：{{ $('Webhook2').item.json.body.email }}\n消息内容：{{ $('Webhook2').item.json.body.message }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        740,
+        520
+      ],
+      "id": "0517610e-0a36-4f23-ae95-a8cbce01e61b",
+      "name": "Send Email2",
+      "webhookId": "4c2a416d-1496-406b-8482-af3e3056dca3",
+      "credentials": {
+        "smtp": {
+          "id": "GkmtEacYW16fC0XU",
+          "name": "SMTP account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n-lyb.zeabur.app",
+            "user-agent": "node",
+            "content-length": "967",
+            "accept": "*/*",
+            "accept-encoding": "br, gzip, deflate",
+            "accept-language": "*",
+            "content-type": "text/plain;charset=UTF-8",
+            "sec-fetch-mode": "cors",
+            "x-forwarded-for": "183.221.0.150, 183.221.0.150",
+            "x-forwarded-host": "n8n-lyb.zeabur.app",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-real-ip": "183.221.0.150",
+            "x-zeabur-container-port": "5678",
+            "x-zeabur-ip-country": "CN",
+            "x-zeabur-request-id": "hkg1::da56e187-ab37-4bc4-830d-6d5f09842db4"
+          },
+          "params": {},
+          "query": {},
+          "body": "{\"_id\":\"68464fd55a6e00fc1f132d77\",\"id\":\"1931905379983839400\",\"createdAt\":\"Mon Jun 09 02:45:10 +0000 2025\",\"entities\":{\"hashtags\":[],\"symbols\":[],\"timestamps\":[],\"urls\":[],\"user_mentions\":[]},\"favoriteCount\":0,\"full_text\":null,\"lang\":\"en\",\"quoteCount\":0,\"quotedStatus\":null,\"replyCount\":0,\"retweetCount\":0,\"retweetedStatus\":null,\"source\":null,\"text\":\"\\\"RAG &gt; LLM alone 🤖📚\\\"\\n\\nOther alternatives:\\n\\n\\\"RAG = smart search + gen\\\"\\n\\n\\\"Ask better. RAG answers.\\\"\\n\\n\\\"LLM+Docs = RAG magic ✨\\\"\",\"user\":{\"id\":\"1889717545235865600\",\"name\":\"Jessica Catrice\",\"screenName\":\"CatriceJes47876\",\"verified\":false,\"followersCount\":0,\"followingCount\":0},\"images\":\"https://ntxfnkftiidhqgfodgwu.supabase.co/storage/v1/object/public/twitter-scripy/twitter/screenshot/CatriceJes47876/1931905379983839400.png\",\"isDev\":true,\"tweetTexts\":[\"\\\"RAG > LLM alone \\\"\\n\\nOther alternatives:\\n\\n\\\"RAG = smart search + gen\\\"\\n\\n\\\"Ask better. RAG answers.\\\"\\n\\n\\\"LLM+Docs = RAG magic \\\"\"]}",
+          "webhookUrl": "https://n8n-lyb.zeabur.app/webhook/2f8209da-8332-40e0-9409-54843e0e8dbf",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "MCP Client": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        []
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Code2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [],
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        []
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        []
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        []
+      ]
+    },
+    "Send Email": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code2": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "Code3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code3": {
+      "main": [
+        [
+          {
+            "node": "Send Email1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook2": {
+      "main": [
+        [
+          {
+            "node": "Code4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code4": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Send Email2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "44ba2069-70ee-4eb2-813a-ed6428a22b25",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0e98bb71c9052b56d64f5135bcb10423bd5778626a89df7bf05a0193d8261c04"
+  },
+  "id": "TuyZVF8e36Ddtdgk",
+  "tags": []
+}
